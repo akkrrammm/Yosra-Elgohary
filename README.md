@@ -45,7 +45,9 @@ Do this once, in order. Every step is safe to repeat.
 
 ### Hosting
 
-Set only `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` on the host. The website never uses the secret key or the database connection string: they are for the setup commands on your own computer.
+Set only `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` on the host. Do not import `.env.local` as a whole: the website never uses the secret key or the database connection string, which are for the setup commands on your own computer.
+
+On Vercel, if `NEXT_PUBLIC_SITE_URL` is missing or points at localhost, the project's production address is used instead. `vercel.json` makes sure each Vercel project builds this as a Next.js site, even one created while the repository was still empty.
 
 After setup, `SUPABASE_DB_URL` can be deleted from `.env.local`, and `SUPABASE_SECRET_KEY` can be too until the next time you add an administrator.
 
