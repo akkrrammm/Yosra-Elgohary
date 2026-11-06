@@ -1,0 +1,315 @@
+@import "tailwindcss";
+
+/* Laptop screens with little height: the hero tightens so the full name stays in view. */
+@custom-variant short (@media (min-width: 64rem) and (max-height: 45rem));
+
+@import "./theme.css";
+
+/*
+ * Each language sets its own font stack instead of sharing one. next/font adds an Arial fallback that has
+ * Arabic glyphs, and it keeps the Latin faces of the Arabic fonts, so a shared stack picks the wrong face
+ * in one language or the other. Next 16 with Turbopack also ignores adjustFontFallback: false.
+ */
+:root {
+  --dir: 1;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-accent: var(--font-fraunces), Georgia, serif;
+  --font-latin-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --intro-delay: 0.6s;
+  --sheet-radius: clamp(4.5rem, 20vw, 22rem);
+}
+
+[dir="rtl"] {
+  --dir: -1;
+  --font-display: var(--font-alexandria), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+}
+
+html[data-seen] {
+  --intro-delay: 0.05s;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-soft);
+  font-family: var(--font-sans);
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-lime);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-lime);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.on-light :focus-visible {
+  outline-color: var(--color-brand);
+}
+
+@layer components {
+/* -------------------------------------------------------------------------- */
+/*  Type                                                                      */
+/* -------------------------------------------------------------------------- */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Arabic has no italics and must never be letter-spaced. Latin titles inside Arabic pages keep their style. */
+/* Taller than Latin: Arabic marks above and below the line would otherwise touch the next line. */
+[dir="rtl"] .display {
+  letter-spacing: 0;
+  line-height: 1.32;
+}
+
+[dir="rtl"] .accent:not([dir="ltr"], [dir="ltr"] *, bdi *) {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+[dir="rtl"] .eyebrow {
+  font-size: 0.875rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.latin {
+  font-family: var(--font-latin-display);
+}
+
+/* Large Latin text on Arabic pages (the name, project titles) keeps the Latin display face. */
+[dir="rtl"] bdi.display,
+[dir="rtl"] .display bdi,
+[dir="rtl"] .display[dir="ltr"] {
+  font-family: var(--font-latin-display);
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+}
+
+[dir="rtl"] bdi .accent,
+[dir="rtl"] .accent[dir="ltr"] {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+[dir="rtl"] bdi {
+  text-align: right;
+}
+
+
+[dir="rtl"] body {
+  line-height: 1.75;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  The logo's curve as a recurring device                                     */
+/* -------------------------------------------------------------------------- */
+
+.fan {
+  border-start-start-radius: var(--fan-x, 46%) var(--fan-y, 34%);
+  border-end-end-radius: clamp(1.25rem, 3vw, 3rem);
+}
+
+.sheet {
+  border-start-start-radius: var(--sheet-radius);
+  position: relative;
+}
+
+.flip-rtl {
+  transform: scaleX(var(--dir));
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Loader: CSS only, so content is never held hostage by JavaScript           */
+/* -------------------------------------------------------------------------- */
+
+.loader {
+  animation: loader-out 0.7s var(--ease-wipe) 0.45s forwards;
+  background: var(--color-ink);
+  display: grid;
+  inset: 0;
+  place-items: center;
+  pointer-events: none;
+  position: fixed;
+  z-index: 100;
+}
+
+.loader__mark {
+  animation: loader-mark 0.5s var(--ease-expo) both;
+}
+
+html[data-seen] .loader {
+  display: none;
+}
+
+@keyframes loader-out {
+  to {
+    clip-path: inset(0 0 100% 0);
+    visibility: hidden;
+  }
+}
+
+@keyframes loader-mark {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Hero entrance                                                              */
+/* -------------------------------------------------------------------------- */
+
+.mask {
+  display: block;
+  margin-block-end: -0.16em;
+  overflow: clip;
+  padding-block-end: 0.16em;
+}
+
+.rise {
+  animation: rise 1.2s var(--ease-expo) calc(var(--intro-delay) + var(--i, 0) * 0.08s) both;
+  display: block;
+}
+
+.fade-up {
+  animation: fade-up 1s var(--ease-expo) calc(var(--intro-delay) + var(--i, 0) * 0.08s) both;
+}
+
+.portrait-in {
+  animation: portrait-in 1.5s var(--ease-expo) var(--intro-delay) both;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(112%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes portrait-in {
+  from {
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.outline-text {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--color-soft);
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Moving ribbon and rotating seal                                            */
+/* -------------------------------------------------------------------------- */
+
+.marquee {
+  animation: marquee 34s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+[dir="rtl"] .marquee {
+  animation-name: marquee-rtl;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-rtl {
+  to {
+    transform: translateX(50%);
+  }
+}
+
+.spin-slow {
+  animation: spin 22s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Reduced motion                                                             */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+
+  .rise,
+  .fade-up,
+  .portrait-in,
+  .marquee,
+  .spin-slow {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}

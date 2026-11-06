@@ -1,0 +1,13 @@
+/* -------------------------------------------------------------------------- */
+/*  Brand tokens: the five palette colors are the only colors in the system    */
+/* -------------------------------------------------------------------------- */
+
+@theme {
+  --color-brand: #6c3bff;
+  --color-pop: #ff5c8a;
+  --color-soft: #f5f0ff;
+  --color-lime: #c5ff41;
+  --color-ink: #17151f;
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-wipe: cubic-bezier(0.76, 0, 0.24, 1);
+}

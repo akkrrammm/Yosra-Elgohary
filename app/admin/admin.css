@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import "../theme.css";
+
+@theme inline {
+  --font-sans: var(--font-instrument), var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-bricolage), var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-soft);
+}
+
+body {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.on-dark :focus-visible {
+  outline-color: var(--color-lime);
+}
+
+/* Arabic inputs use the Arabic typeface, and never inherit Latin letter spacing. */
+[lang="ar"] {
+  font-family: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+dialog::backdrop {
+  background: rgb(23 21 31 / 0.6);
+}
+
+/* Shows transparent images against a pattern, so white and dark logos are both visible. */
+.checkerboard {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, rgb(23 21 31 / 0.08) 25%, transparent 25%),
+    linear-gradient(-45deg, rgb(23 21 31 / 0.08) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgb(23 21 31 / 0.08) 75%),
+    linear-gradient(-45deg, transparent 75%, rgb(23 21 31 / 0.08) 75%);
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0;
+  background-size: 12px 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
