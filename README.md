@@ -26,7 +26,7 @@ Do this once, in order. Every step is safe to repeat.
    npm run cms:migrate -- --dry-run   # shows what it would do, and changes nothing
    npm run cms:migrate
    ```
-   It stops without changing anything if a table or type it needs already exists and did not come from these migrations. It never drops anything, and it leaves unrelated tables alone.
+   It asks for your database password, hidden, and does not save it. It stops without changing anything if a table or type it needs already exists and did not come from these migrations. It never drops anything, and it leaves unrelated tables alone.
 3. **Move the original content and images in.**
    ```bash
    npm run cms:seed

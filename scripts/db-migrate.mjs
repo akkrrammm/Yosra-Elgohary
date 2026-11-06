@@ -3,21 +3,27 @@
 //   npm run cms:migrate -- --dry-run    Inspect only. Changes nothing.
 //   npm run cms:migrate                 Inspect, then apply what is new.
 //
-// Needs SUPABASE_DB_URL in .env.local. It is only used here, so it can be removed afterwards.
+// Needs SUPABASE_DB_URL in .env.local. Leave [YOUR-PASSWORD] in it and this asks for the database
+// password, hidden, so the password is never written to a file. Symbols in it are handled for you.
 // Safe to run again: applied migrations are skipped. It never drops anything, and it stops
 // without changing anything if a table or type it would create already exists.
 import path from "node:path";
 import pg from "pg";
 import { loadEnv, requireEnv } from "./lib/env.mjs";
 import { applyMigrations, inspectDatabase, readMigrations } from "./lib/migrate.mjs";
+import { askHidden } from "./lib/prompt.mjs";
 
 loadEnv();
-const connectionString = process.env.SUPABASE_DB_URL ?? "";
+let connectionString = process.env.SUPABASE_DB_URL ?? "";
 requireEnv([[connectionString, "SUPABASE_DB_URL"]]);
 
 if (connectionString.includes("[YOUR-PASSWORD]")) {
-  console.error("SUPABASE_DB_URL still has the [YOUR-PASSWORD] placeholder. Replace it with your database password.");
-  process.exit(1);
+  const password = await askHidden("Database password (hidden): ");
+  if (!password) {
+    console.error("No password entered. Nothing was changed.");
+    process.exit(1);
+  }
+  connectionString = connectionString.replace("[YOUR-PASSWORD]", encodeURIComponent(password));
 }
 
 let url;
@@ -25,7 +31,7 @@ try {
   url = new URL(connectionString);
 } catch {
   // The value holds a password, so it is deliberately not repeated here.
-  console.error("SUPABASE_DB_URL is not a valid address. If your password has symbols in it, they must be percent-encoded.");
+  console.error("SUPABASE_DB_URL is not a valid address. Copy it again from Supabase and leave [YOUR-PASSWORD] in it: this command asks for the password.");
   process.exit(1);
 }
 

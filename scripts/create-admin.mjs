@@ -5,9 +5,9 @@
 //
 // Needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY in .env.local.
 // The password is typed here, hidden, and is never written to a file or shown.
-import { createInterface } from "node:readline/promises";
 import { createClient } from "@supabase/supabase-js";
 import { loadEnv, requireEnv, secretKey, supabaseUrl } from "./lib/env.mjs";
+import { ask, askHidden } from "./lib/prompt.mjs";
 
 const MIN_PASSWORD_LENGTH = 10;
 
@@ -20,67 +20,6 @@ requireEnv([
 const supabase = createClient(supabaseUrl(), secretKey(), {
   auth: { persistSession: false, autoRefreshToken: false },
 });
-
-const { stdin, stdout } = process;
-
-/** Piped input arrives as one stream, so it is read once and handed out line by line. */
-const pipedLines = stdin.isTTY ? null : (await readAll(stdin)).split(/\r?\n/);
-
-async function readAll(stream) {
-  let text = "";
-  for await (const chunk of stream) text += chunk;
-  return text;
-}
-
-async function ask(question) {
-  if (pipedLines) {
-    stdout.write(question + "\n");
-    return (pipedLines.shift() ?? "").trim();
-  }
-  const prompt = createInterface({ input: stdin, output: stdout });
-  const answer = await prompt.question(question);
-  prompt.close();
-  return answer.trim();
-}
-
-function askHidden(question) {
-  if (pipedLines) {
-    stdout.write(question + "\n");
-    return Promise.resolve(pipedLines.shift() ?? "");
-  }
-  return new Promise((resolve) => {
-    let value = "";
-    stdout.write(question);
-    stdin.setRawMode(true);
-    stdin.resume();
-    stdin.setEncoding("utf8");
-
-    const finish = () => {
-      stdin.setRawMode(false);
-      stdin.pause();
-      stdin.removeListener("data", onData);
-      stdout.write("\n");
-    };
-
-    const onData = (chunk) => {
-      for (const character of chunk) {
-        if (character === "\u0003") {
-          finish();
-          process.exit(130);
-        }
-        if (character === "\r" || character === "\n" || character === "\u0004") {
-          finish();
-          resolve(value);
-          return;
-        }
-        if (character === "\u0008" || character === "\u007f") value = value.slice(0, -1);
-        else value += character;
-      }
-    };
-
-    stdin.on("data", onData);
-  });
-}
 
 async function findUser(email) {
   for (let page = 1; ; page += 1) {
